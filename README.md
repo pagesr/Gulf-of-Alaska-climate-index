@@ -8,4 +8,5 @@ The Northern Gulf of Alaska Oscillation (NGAO) index describes the strength of t
 
 The Gulf of Alaska Downwelling Index (GOADI) quantifies the intensity of positive coastal SSH anomalies in the Gulf of Alaska, indicating the strength of coastal downwelling (Hauri et al., 2024). This index is derived from the second mode of variability identified by Empirical Orthogonal Function (EOF) decomposition, applied to SSH anomalies after removing trends and monthly climatology. While this second mode accounts for approximately 10 % of the total variance, it explains approximately 60 % of the SSH variance on the continental shelf area.
 
+![GOADI index](GOADI_mon.png)
 

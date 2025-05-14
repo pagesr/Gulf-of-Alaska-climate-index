@@ -87,7 +87,6 @@ cdo cat c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_...1993-01-01-
 
 
 ---
-
 ### 🔹 Step 5 — *(Optional)* Interpolate ROMS Domain onto the 0.25° Grid
 
 This step is only needed if the data grid has changed.  
@@ -104,17 +103,3 @@ Generate a monthly mean version of the merged time series:
 
 ```bash
 cdo monmean adt_full_on_025.nc adt_full_on_025_monthly.nc
-
-
-### 🔹 Step 7 — Compute NGAO / GOADI Index
-
-This step involves performing the EOF decomposition and extracting the principal modes of SSH variability to compute both the **NGAO** and **GOADI** indices.
-
-- **Script:** `ngao_compute_month.py`  
-  This script:
-  - Performs detrending and climatology removal
-  - Runs EOF analysis on SSH anomalies
-  - Saves the resulting indices as `.csv` and `.npy` files
-
-```bash
-python ngao_compute_month.py

@@ -100,8 +100,6 @@ The `mask_roms_on_025.nc` file is provided and does not need to be regenerated u
 ### 🔹 Step 6 — Compute Monthly Averages
 
 Generate a monthly mean version of the merged time series:
-
-
 cdo monmean adt_full_on_025.nc adt_full_on_025_monthly.nc
 
 ### 🔹 Step 7 — Compute NGAO / GOADI Index
@@ -114,4 +112,3 @@ This step involves performing the EOF decomposition and extracting the principal
   - Runs EOF analysis on SSH anomalies
   - Saves the resulting indices as `.csv` and `.npy` files
 
-python ngao_compute_month.py

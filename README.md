@@ -1,6 +1,6 @@
 # Gulf-of-Alaska-climate-index
 
-This repository contains the scripts and workflow needed to compute the **Northern Gulf of Alaska Oscillation (NGAO)** (see *Hauri et al., 2021*) and the **Gulf of Alaska Downwelling Index (GOADI)** (see *Hauri et al., 2021*).  
+This repository contains the scripts and workflow needed to compute the **Northern Gulf of Alaska Oscillation (NGAO)** (see *[Hauri et al., 2021](https://doi.org/10.1038/s43247-021-00254-z)*) and the **Gulf of Alaska Downwelling Index (GOADI)** (see *[Hauri et al., 2021](https://doi.org/10.1029/2023AV001039)*).  
 
 ---
 

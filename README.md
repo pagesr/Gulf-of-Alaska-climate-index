@@ -84,7 +84,9 @@ This step is run each time the index is updated.
 cdo cat c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_...1993-01-01-2024-06-14.nc \
         cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.25deg_P1D_adt_...2024-06-15-2024-11-20.nc \
         adt_native_025_reana_nrt_concat.nc
+        
 **Second**, concatenate the reanalysis and 0.25° NRT last part:
+
         cdo cat adt_native_025_reana_nrt_concat.nc adt_from_0125_on_025.nc adt_full_on_025.nc
 ---
 ### 🔹 Step 5 — *(Optional)* Interpolate ROMS Domain onto the 0.25° Grid

@@ -66,5 +66,5 @@ def save_to_csv(data, label, filename):
     filepath.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(filepath)
 np.save('date_mon.npy',date)
-save_to_csv(pcs_zeta[:, 0], 'NGAO','NGAO_monthly.csv')
-save_to_csv(pcs_zeta[:, 1], 'DW','GOADI_monthly.csv')
+save_to_csv(pcs_zeta[:, 0], 'NGAO','../INDEX/NGAO_monthly.csv')
+save_to_csv(pcs_zeta[:, 1], 'DW','../INDEX/GOADI_monthly.csv')

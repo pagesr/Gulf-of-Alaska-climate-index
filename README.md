@@ -37,11 +37,11 @@ While this second mode accounts for approximately **10% of the total variance**,
 
 ### 🔹 Step 1 — Download the Reanalysis SSH (if a new version is available)
 
-As of **May 14, 2025**, the latest reanalysis version is `202411`, covering **1993-01-01 → 2024-06-14**.  
+As of **May 4, 2026**, the latest reanalysis version is `202411`, covering **1993-01-01 → 2024-05-01**.  
 - **Product:** `c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D`  
 - **Scripts:** `get_HINDCAST.py`, `get_HIND.py`  
 - **Output:**  
-  `c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_177.88W-126.12W_40.12N-62.88N_1993-01-01-2024-06-14.nc`
+  `c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_177.88W-126.12W_40.12N-62.88N_1993-01-01-2025-05-01.nc`
 
 ---
 
@@ -49,20 +49,17 @@ As of **May 14, 2025**, the latest reanalysis version is `202411`, covering **19
 
 This step is run each time the index is updated.
 
-⚠️ Two NRT products currently coexist:
+⚠️ :As of May 2026
 
-| Resolution | Period                  | Product ID                                                 |
+| Resolution | Period                   |  Product ID                                                 |
 |------------|--------------------------|-------------------------------------------------------------|
-| 0.25°      | 2022-01-01 → 2024-11-20 | `cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.25deg_P1D`  |
-| 0.125°     | 2024-11-20 → 2025-05-14 | `cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D` |
+| 0.125°     | 2024-11-20 → nrt         | `cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D` |
 
-**Strategy:**
-- Use **0.25°** from `2024-06-15` to `2024-11-20`
-- Use **0.125°** from `2024-11-21` onward  
-(→ 0.25° will likely be discontinued in the future)
+Version : `202506`
 
-**Scripts:**
-- `get_NRT.py` — downloads the 0.25° segment  
+
+**Script:**
+⚠️  `get_NRT.py` — downloads the 0.25° segment ⚠️  NOW DEPRECIATED 
 - `get_NRT0125.py` — downloads the 0.125° segment
 
 ---
@@ -78,12 +75,9 @@ This step is run each time the index is updated.
 
 ### 🔹 Step 4 — Concatenate All Files
 
-**First**, concatenate the reanalysis and 0.25° NRT (not needed all the time):
+**First**, eme the hindcast part: 
+`ln -sfv c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_177.88W-126.12W_40.12N-62.88N_1993-01-01-2025-05-01.nc adt_native_025_reana_nrt_concat.nc` 
 
-
-cdo cat c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_...1993-01-01-2024-06-14.nc \
-        cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.25deg_P1D_adt_...2024-06-15-2024-11-20.nc \
-        adt_native_025_reana_nrt_concat.nc
         
 **Second**, concatenate the reanalysis and 0.25° NRT last part:
 

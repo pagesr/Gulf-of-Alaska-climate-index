@@ -14,14 +14,14 @@ login(username='your_username', password='your_password')
 
 cm.subset(
   dataset_id="cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D",
-  dataset_version="202411",
+  dataset_version="202506",
   force_download= True,
   variables=["adt"],
   minimum_longitude=-178,
   maximum_longitude=-126,
   minimum_latitude=40,
   maximum_latitude=63,
-  start_datetime="2024-11-21T00:00:00",
-  end_datetime="2025-12-31T00:00:00",
+  start_datetime="2025-05-02T00:00:00",
+  end_datetime="2026-12-31T00:00:00",
 )
 

@@ -25,7 +25,7 @@ class nctime(object):
 #dst_grd = pyroms.grid.get_ROMS_grid('NWGOA3')
 
 # Open the forcing dataset
-cdf = netCDF.Dataset('cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_adt_177.94W-126.06W_40.06N-62.94N_2024-11-21-2025-05-14.nc')
+cdf = netCDF.Dataset('cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D_adt_177.94W-126.06W_40.06N-62.94N_2025-05-02-2026-05-04.nc')
 
 # Extract the 'adt' variable and its attributes
 src_var = np.array(cdf.variables['adt'][:])

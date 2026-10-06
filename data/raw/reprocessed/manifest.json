@@ -1,0 +1,17 @@
+{
+  "dataset_id": "cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D",
+  "dataset_version": "202411",
+  "start_datetime": "1993-01-01T00:00:00",
+  "end_datetime": "2026-05-15 00:00:00",
+  "variable": [
+    "adt"
+  ],
+  "longitude": [
+    -175,
+    -120
+  ],
+  "latitude": [
+    40,
+    62
+  ]
+}

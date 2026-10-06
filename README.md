@@ -1,110 +1,343 @@
-# Gulf-of-Alaska-climate-index
+# Gulf of Alaska Climate Indices — NGAO & GOADI
 
-This repository contains the scripts and workflow needed to compute the **Northern Gulf of Alaska Oscillation (NGAO)** (see *[Hauri et al., 2021](https://doi.org/10.1038/s43247-021-00254-z)*) and the **Gulf of Alaska Downwelling Index (GOADI)** (see *[Hauri et al., 2024](https://doi.org/10.1029/2023AV001039)*).  
+This repository provides a reproducible workflow for computing and updating two Gulf of Alaska circulation indices from satellite absolute dynamic topography (ADT):
+
+- **Northern Gulf of Alaska Oscillation (NGAO)** — Hauri et al. (2021), [doi:10.1038/s43247-021-00254-z](https://doi.org/10.1038/s43247-021-00254-z)
+- **Gulf of Alaska Downwelling Index (GOADI)** — Hauri et al. (2024), [doi:10.1029/2023AV001039](https://doi.org/10.1029/2023AV001039)
+
+The workflow retrieves Copernicus Marine satellite altimetry data, combines the reprocessed and near-real-time records, applies a fixed Gulf of Alaska model-domain mask, computes monthly anomalies and EOFs, and generates updated index values and figures.
+
+The project is being developed as a reproducible, production-style scientific workflow while preserving the original scientific methodology used to define the indices.
 
 ---
 
 ## Northern Gulf of Alaska Oscillation (NGAO)
 
-The NGAO index describes the strength of the cyclonic circulation in the Gulf of Alaska, and therefore, the intensity of offshore upwelling in the Alaskan gyre and coastal downwelling (*Hauri et al., 2021*).  
+The **NGAO** describes variations in the strength of cyclonic circulation in the Gulf of Alaska and therefore changes in offshore upwelling in the Alaskan gyre and coastal downwelling.
 
-The NGAO corresponds to the **primary mode of variability**, identified through Empirical Orthogonal Function (EOF) decomposition performed on SSH anomalies (with trends and monthly climatology removed).  
-This first mode accounts for approximately **24% of the total variance** and explains about **50% of the SSH variance in offshore areas**.
+The NGAO corresponds to the **first principal component (PC1)** of an Empirical Orthogonal Function (EOF) decomposition of detrended and deseasonalized sea-surface height variability.
 
-![NGAO index](NGAO_mon.png)
+![NGAO index](outputs/figures/NGAO_monthly.png)
 
 ---
 
 ## Gulf of Alaska Downwelling Index (GOADI)
 
-The GOADI quantifies the intensity of **positive coastal SSH anomalies** in the Gulf of Alaska, indicating the strength of coastal downwelling (*Hauri et al., 2024*).  
+The **GOADI** describes variations in positive coastal sea-surface height anomalies associated with coastal downwelling in the Gulf of Alaska.
 
-This index is derived from the **second mode of variability** identified by EOF decomposition, applied to SSH anomalies after removing trends and monthly climatology.  
-While this second mode accounts for approximately **10% of the total variance**, it explains about **60% of the SSH variance** on the continental shelf.
+The GOADI corresponds to the **second principal component (PC2)** of the EOF decomposition.
 
-![GOADI index](GOADI_mon.png)
-
----
-
-## ✅ Updating the NGAO / GOADI Index
-
-**Workspace path:** `/Volumes/work/NGAO/SATELLITE/NEW`  
-**Conda environment:** `remi`  
-**Reanalysis data:** [DOI:10.48670/moi-00145](https://doi.org/10.48670/moi-00145)  
-**Near-real-time (NRT) data:** [DOI:10.48670/moi-00149](https://doi.org/10.48670/moi-00149)
+![GOADI index](outputs/figures/GOADI_monthly.png)
 
 ---
 
-### 🔹 Step 1 — Download the Reanalysis SSH (if a new version is available)
+## Data
 
-As of **May 4, 2026**, the latest reanalysis version is `202411`, covering **1993-01-01 → 2024-05-01**.  
-- **Product:** `c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D`  
-- **Scripts:** `get_HINDCAST.py`, `get_HIND.py`  
-- **Output:**  
-  `c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_177.88W-126.12W_40.12N-62.88N_1993-01-01-2025-05-01.nc`
+The current workflow uses the Copernicus Marine **0.125° all-satellite DUACS ADT products**.
 
----
+### Reprocessed record
 
-### 🔹 Step 2 — Download Near-Real-Time (NRT) SSH
+```text
+cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D
+```
 
-This step is run each time the index is updated.
+The reprocessed dataset provides the historical record beginning in January 1993.
 
-⚠️ :As of May 2026
+### Near-real-time record
 
-| Resolution | Period                   |  Product ID                                                 |
-|------------|--------------------------|-------------------------------------------------------------|
-| 0.125°     | 2024-11-20 → nrt         | `cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D` |
+```text
+cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D
+```
 
-Version : `202506`
+The workflow automatically determines the last available date in the reprocessed product and starts the NRT request on the following day.
 
+This avoids hard-coded handoff dates between the historical and operational products.
 
-**Script:**
-⚠️  `get_NRT.py` — downloads the 0.25° segment ⚠️  NOW DEPRECIATED 
-- `get_NRT0125.py` — downloads the 0.125° segment
+Only the `adt` variable is required.
 
 ---
 
-### 🔹 Step 3 — Interpolate 0.125° onto the 0.25° Grid
+## Scientific workflow
 
-- **Script:** `interp_0125_on_025.py`  
-- **Output:** `adt_from_0125_on_025.nc`
+The scientific processing follows the original NGAO/GOADI implementation.
 
-⚠️ The land mask in 0.125° is coarser. Run `mask_reana.py` to match the reanalysis land mask.
+```text
+Copernicus reprocessed ADT
+             +
+Copernicus NRT ADT
+             |
+             v
+     concatenate daily data
+             |
+             v
+     validate daily time axis
+             |
+             v
+       monthly averages
+             |
+             v
+      apply ROMS mask
+             |
+             v
+   quadratic detrending
+         order = 2
+             |
+             v
+ additive seasonal decomposition
+         period = 12
+             |
+             v
+   remove seasonal component
+             |
+             v
+      EOF decomposition
+          /       \
+        PC1       PC2
+         |         |
+       NGAO      GOADI
+```
+
+Important scientific choices from the original implementation are intentionally preserved:
+
+- quadratic detrending using `statsmodels.tsa.tsatools.detrend(order=2)`;
+- additive seasonal decomposition with a 12-month period;
+- the same order of detrending and seasonal-cycle removal;
+- EOF analysis using `eofs.standard.Eof`;
+- principal components using `pcscaling=1`;
+- PC1 identified as NGAO;
+- PC2 identified as GOADI.
+
+The modernization of the repository is intended to improve reproducibility and automation without silently changing the scientific definition of the indices.
 
 ---
 
-### 🔹 Step 4 — Concatenate All Files
+## Gulf of Alaska domain mask
 
-**First**, eme the hindcast part: 
-`ln -sfv c3s_obs-sl_glo_phy-ssh_my_twosat-l4-duacs-0.25deg_P1D_adt_177.88W-126.12W_40.12N-62.88N_1993-01-01-2025-05-01.nc adt_native_025_reana_nrt_concat.nc` 
+The analysis is restricted to the ocean portion of the NWGOA ROMS model domain.
 
-        
-**Second**, concatenate the reanalysis and 0.25° NRT last part:
+The original ROMS grid is stored at:
 
-        cdo cat adt_native_025_reana_nrt_concat.nc adt_from_0125_on_025.nc adt_full_on_025.nc
+```text
+data/reference/roms/NWGOA_grid_3.nc
+```
+
+A fixed binary mask interpolated onto the Copernicus 0.125° grid is stored at:
+
+```text
+data/reference/masks/roms_ocean_mask_0125.nc
+```
+
+with:
+
+```text
+1 = ocean inside the ROMS domain
+0 = land or outside the ROMS domain
+```
+
+The mask does **not** need to be regenerated during normal index updates.
+
+If regeneration is required, for example after changing the spatial domain or satellite grid, use:
+
+```bash
+python scripts/build_roms_mask.py
+```
+
 ---
-### 🔹 Step 5 — *(Optional)* Interpolate ROMS Domain onto the 0.25° Grid
 
-This step is only needed if the data grid has changed.  
-The `mask_roms_on_025.nc` file is provided and does not need to be regenerated unless the spatial resolution or domain has been altered.
+## Repository structure
 
-- **Script:** `interp_roms_on_025.py`  
-- **Output:** `mask_roms_on_025.nc` (binary mask: `0 = outside ROMS`, `1 = inside`)
+```text
+Gulf-of-Alaska-climate-index/
+│
+├── README.md
+├── LICENSE
+├── pyproject.toml
+├── .gitignore
+│
+├── src/
+│   └── goa_indices/
+│       ├── __init__.py
+│       ├── download.py
+│       ├── indices.py
+│       ├── plotting.py
+│       ├── validation.py
+│       └── cli.py
+│
+├── config/
+│   └── default.toml
+│
+├── data/
+│   ├── raw/
+│   │   ├── reprocessed/
+│   │   └── nrt/
+│   │
+│   └── reference/
+│       ├── roms/
+│       ├── masks/
+│       └── legacy_indices/
+│
+├── outputs/
+│   ├── indices/
+│   ├── figures/
+│   └── qc/
+│
+├── scripts/
+│   └── build_roms_mask.py
+│
+├── tests/
+│
+└── docs/
+```
+
+Large downloaded satellite datasets are not stored in Git.
+
+Small reference datasets required to reproduce the analysis, including the ROMS mask and legacy NGAO/GOADI indices, are retained in the repository.
 
 ---
 
-### 🔹 Step 6 — Compute Monthly Averages
+## Copernicus Marine authentication
 
-Generate a monthly mean version of the merged time series:
-cdo monmean adt_full_on_025.nc adt_full_on_025_monthly.nc
+A Copernicus Marine account is required to download the satellite data.
 
-### 🔹 Step 7 — Compute NGAO / GOADI Index
+Authenticate once using:
 
-This step involves performing the EOF decomposition and extracting the principal modes of SSH variability to compute both the **NGAO** and **GOADI** indices.
+```bash
+copernicusmarine login
+```
 
-- **Script:** `ngao_compute_month.py`  
-  This script:
-  - Performs detrending and climatology removal
-  - Runs EOF analysis on SSH anomalies
-  - Saves the resulting indices as `.csv` and `.npy` files
+Credentials are managed by the Copernicus Marine Toolbox and are **not stored in this repository**.
 
+---
+
+## Running the workflow
+
+From the repository root, run:
+
+```bash
+python -m src.goa_indices.cli
+```
+
+The workflow performs:
+
+```text
+1. Check/update Copernicus data
+2. Compute NGAO and GOADI
+3. Generate figures
+```
+
+The generated products are written to:
+
+```text
+outputs/indices/
+outputs/figures/
+```
+
+### Run with legacy quality control
+
+To additionally compare the new indices against the legacy implementation:
+
+```bash
+python -m src.goa_indices.cli --qc
+```
+
+QC results are written to:
+
+```text
+outputs/qc/
+```
+
+---
+
+## Output products
+
+### Monthly indices
+
+```text
+outputs/indices/NGAO_monthly.csv
+outputs/indices/GOADI_monthly.csv
+```
+
+The CSV files contain one value per month:
+
+```text
+date,NGAO
+1993-01,...
+1993-02,...
+...
+```
+
+and:
+
+```text
+date,GOADI
+1993-01,...
+1993-02,...
+...
+```
+
+### Figures
+
+```text
+outputs/figures/NGAO_monthly.png
+outputs/figures/GOADI_monthly.png
+```
+
+### Additional diagnostics
+
+The workflow also produces EOF variance fractions and NumPy representations of the indices for internal processing.
+
+---
+
+## Validation against the legacy workflow
+
+The new workflow uses the native **0.125° all-satellite** Copernicus product, whereas the previous implementation primarily used the **0.25° two-satellite** product.
+
+Because the observational product changed, exact numerical equality is not expected.
+
+The new implementation was compared against the legacy NGAO and GOADI indices over their common period from **January 1993 through May 2026 (401 months)**.
+
+| Metric | NGAO | GOADI |
+|---|---:|---:|
+| Correlation | 0.9925 | 0.9913 |
+| RMSE | 0.1238 | 0.1320 |
+| Mean difference (new − legacy) | +0.0187 | −0.0084 |
+| Legacy standard deviation | 1.0000 | 1.0000 |
+| New standard deviation | 0.9892 | 1.0030 |
+
+The correlations above **0.99**, small mean offsets, and nearly identical variance indicate that the new 0.125° workflow preserves the behavior of the original indices while substantially simplifying the data-processing pipeline.
+
+The legacy index values used for this comparison are retained in:
+
+```text
+data/reference/legacy_indices/
+```
+
+---
+
+## Development goals
+
+This repository is also being used to progressively develop a production-style scientific data workflow.
+
+Planned development includes:
+
+- reproducible dependency management;
+- automated scientific tests with `pytest`;
+- continuous integration with GitHub Actions;
+- automated detection and processing of new observations;
+- scheduled index updates;
+- improved provenance and metadata;
+- containerization where useful;
+- low-cost cloud/object storage where it provides a clear benefit;
+- automated publication of updated indices and figures.
+
+The guiding principle is to introduce infrastructure only when it solves a clear reproducibility, automation, or deployment problem.
+
+---
+
+## References
+
+Hauri, C. et al. (2021). *A regional hindcast model simulating ecosystem dynamics, inorganic carbon chemistry and ocean acidification in the Gulf of Alaska*. Communications Earth & Environment.  
+https://doi.org/10.1038/s43247-021-00254-z
+
+Hauri, C. et al. (2024). Gulf of Alaska circulation and downwelling index study. AGU Advances.  
+https://doi.org/10.1029/2023AV001039
